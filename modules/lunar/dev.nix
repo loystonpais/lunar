@@ -54,6 +54,14 @@
           status = {
             disabled = false;
           };
+
+          custom.tmux = {
+            command = "echo tmux";
+            when = ''test "$TMUX"'';
+            format = "[$symbol]($style) ";
+            symbol = "🪟 ";
+            style = "bold blue";
+          };
         };
       };
 
@@ -73,11 +81,6 @@
         autocd = true;
         syntaxHighlighting.enable = true;
         autosuggestion.enable = true;
-
-        shellAliases = {
-          cpr = "rsync -avhP --partial --inplace";
-          lstr = "ls -tr";
-        };
 
         history = {
           size = 10000000;
