@@ -28,4 +28,12 @@
       };
     };
   };
+
+  den.hosts.aarch64-linux = {
+    vili = {
+      users = {
+        loystonpais = {};
+      };
+    };
+  };
 }
