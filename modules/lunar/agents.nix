@@ -1,6 +1,7 @@
 {
   den,
   lib,
+  inputs,
   ...
 }: let
   globalPromptFiles = {
@@ -16,37 +17,194 @@
 
   addTextToAllGlobalPromptFiles = addTextToFilesInHome (lib.attrValues globalPromptFiles);
 
-  mkIsolatedAgentBin = {
-    homeDir,
-    binName,
-    agent,
-    bubblewrap,
-    writeShellScriptBin,
-  }:
-    writeShellScriptBin binName ''
-      mkdir -p "${homeDir}"
-      exec ${lib.getExe bubblewrap} \
-        --ro-bind /usr /usr \
-        --ro-bind /nix /nix \
-        --ro-bind /bin /bin \
-        --ro-bind /etc /etc \
-        --ro-bind /run/current-system/sw/bin /run/current-system/sw/bin \
-        --ro-bind "$HOME" "$HOME" \
-        --bind /tmp /tmp \
-        --bind "$HOME/${homeDir}" "$HOME/${homeDir}" \
-        --bind "$(pwd)" "$(pwd)" \
-        --tmpfs "$XDG_RUNTIME_DIR" \
-        --setenv HOME            "$HOME/${homeDir}" \
-        --setenv XDG_CONFIG_HOME "$HOME/${homeDir}/.config" \
-        --setenv XDG_DATA_HOME   "$HOME/${homeDir}/.local/share" \
-        --setenv XDG_CACHE_HOME  "$HOME/${homeDir}/.cache" \
-        --setenv XDG_STATE_HOME  "$HOME/${homeDir}/.local/state" \
-        --proc /proc \
-        --dev /dev \
-        ${lib.getExe agent} "$@"
-    '';
+  agentJailLib = {
+    pkgs,
+    jail-nix,
+    homesPath,
+    ...
+  }: {
+    # jailed :: String -> AttrSet -> Derivation
+    # scope   -
+    # extraPerms - additional combinators beyond the agent base
+    jailed = scope: pkg: {
+      name ? "agent-${scope}-${pkg.meta.mainProgram}",
+      extraPerms ? (_: []),
+    }: let
+      agentHome = "${homesPath}/${scope}";
+
+      jail = jail-nix.lib.extend {
+        inherit pkgs;
+
+        additionalCombinators = c:
+          with c; {
+            bind-agent-home-to-home = path:
+              compose [
+                (add-runtime ''
+                  mkdir -p ~/${escape path}
+                  mkdir -p ${agentHome}/${escape path}
+                '')
+                (unsafe-add-raw-args "--bind ${agentHome}/${escape path} ~/${escape path}")
+              ];
+            try-bind-agent-home-to-home = path:
+              compose [
+                (add-runtime ''
+                  mkdir -p ~/${escape path}
+                  mkdir -p ${agentHome}/${escape path}
+                '')
+                (unsafe-add-raw-args "--bind-try ${agentHome}/${escape path} ~/${escape path}")
+              ];
+          };
+
+        basePermissions = c:
+          with c; [
+            (unsafe-add-raw-args "--proc /proc")
+            (unsafe-add-raw-args "--dev /dev") # a new /dev removes access to drives
+            (unsafe-add-raw-args "--bind /tmp /tmp") # /tmp needn't be tmpfs always
+            (unsafe-add-raw-args "--bind /run /run")
+            (unsafe-add-raw-args "--ro-bind /nix /nix") # important
+            (unsafe-add-raw-args "--bind /nix/var/nix/daemon-socket /nix/var/nix/daemon-socket") # nix will connect to the daemon
+
+            (unsafe-add-raw-args "--ro-bind ~ ~") # Make home ro
+
+            fake-passwd
+            network
+
+            # Mount the agent's home as rw
+            (readwrite agentHome)
+
+            # Ensure the dir exists at runtime before the jail starts
+            (add-runtime ''
+              mkdir -p "${agentHome}"
+            '')
+
+            # mount some paths in home as rw like cache, .cargo etc..
+            (try-readwrite (noescape "~/.cargo"))
+
+            (try-readwrite (noescape "~/.local/state/nix"))
+            (try-readwrite (noescape "~/.local/share/nix"))
+            (try-readwrite (noescape "~/.config/nix"))
+
+            (try-readwrite (noescape "~/.npm"))
+            (try-readwrite (noescape "~/.cache"))
+            (try-readwrite (noescape "~/.local/share/devenv"))
+            (try-readwrite (noescape "~/.nix-defexpr"))
+
+            (try-readwrite (noescape "~/.local/lib"))
+            (try-readwrite (noescape "~/.local/share/virtualenvs"))
+            (try-readwrite (noescape "~/.cache/pip"))
+            (try-readwrite (noescape "~/.cache/uv"))
+            (try-readwrite (noescape "~/.local/share/uv"))
+            (try-readwrite (noescape "~/.config/uv"))
+            (try-readwrite (noescape "~/.pyenv"))
+            (try-readwrite (noescape "~/.poetry"))
+            (try-readwrite (noescape "~/.config/pypoetry"))
+            # TODO: add more rw paths
+
+            # Bind some paths from agent home to real home like .gemini
+            (bind-agent-home-to-home ".gemini")
+            (bind-agent-home-to-home ".claude")
+            (bind-agent-home-to-home ".codex")
+
+            (bind-agent-home-to-home ".config/opencode")
+            (bind-agent-home-to-home ".local/share/opencode")
+            (bind-agent-home-to-home ".local/state/opencode")
+            #
+
+            (fwd-env "PATH") # forward paths from outside
+
+            (set-env "AGENT_SCOPE" scope)
+
+            mount-cwd
+          ];
+      };
+    in
+      jail name pkg (c: extraPerms c);
+  };
 in {
   lunar.agents = {
+    # TODO: Is there a better way to do this?
+    provides.jailed = mkAgents: mkScopes: {extraPerms ? (_: [])}:
+      lib.mkMerge [
+        {
+          homeManager.home.file."Agents/.directory".text = ''
+            Agents Directory
+          '';
+        }
+
+        {
+          homeManager = {
+            pkgs,
+            lib,
+            config,
+            ...
+          }: let
+            inherit
+              (agentJailLib {
+                inherit pkgs;
+                inherit (inputs) jail-nix;
+                homesPath = "${config.home.homeDirectory}/Agents/home";
+              })
+              jailed
+              ;
+
+            agents = mkAgents pkgs;
+            scopes = mkScopes;
+
+            defaultAgentsPerms = {
+              gemini = c: [];
+              opencode = c: [];
+              claude = c: [];
+            };
+          in
+            lib.mkMerge (
+              lib.attrsets.mapCartesianProduct ({
+                agentName,
+                scopeName,
+              }: let
+                agent = agents.${agentName};
+                scope = scopes.${scopeName};
+
+                agentPerms = agent.perms or (_: []);
+                scopePerms = scope.perms or (_: []);
+                defaultAgentPerms = defaultAgentsPerms.${agentName} or (c: []);
+              in {
+                home.packages = [
+                  (jailed scopeName agent.pkg {
+                    extraPerms = c: (agentPerms c) ++ (scopePerms c) ++ (defaultAgentPerms c);
+                  })
+                ];
+              }) {
+                agentName = builtins.attrNames agents;
+                scopeName = builtins.attrNames scopes;
+              }
+            );
+        }
+      ];
+
+    homeManager = {
+      pkgs,
+      jail,
+      ...
+    }: {
+      home.packages = with pkgs; [
+        gemini-cli
+        opencode
+      ];
+    };
+
+    provides.prompt-minimal-tokens = lib.mkMerge [
+      (addTextToAllGlobalPromptFiles ''
+        # Generating Minimal Tokens
+
+        ## General Conversations
+        Be terse. No filler, greetings, or meta-commentary. Omit pleasantries, caveats, and redundant explanations. Answer directly. Use lists only when structure genuinely helps. Prefer short sentences. If a one-word answer suffices, give one word.
+
+        ## Coding Agent
+        No filler or preamble. Code only unless explanation is explicitly asked. Comments only on non-obvious logic. No "here's the code" intros.
+
+      '')
+    ];
+
     provides.prompt-notify-via-zenity = lib.mkMerge [
       {
         homeManager = {pkgs, ...}: {
@@ -75,46 +233,5 @@ in {
 
       '')
     ];
-
-    provides.isolated-agents = {
-      agents,
-      usernames,
-      ...
-    }:
-      lib.mkMerge [
-        {
-          homeManager.home.file."Agents/.directory".text = ''
-            Agents Directory
-          '';
-        }
-
-        (lib.flatten (map (
-            agent:
-              map (
-                username: {
-                  homeManager = {
-                    pkgs,
-                    lib,
-                    ...
-                  }: let
-                    agentHome = "Agents/home/${username}";
-                  in
-                    lib.mkMerge [
-                      {
-                        home.packages = [
-                          (mkIsolatedAgentBin {
-                            homeDir = agentHome;
-                            binName = "${agent.meta.mainProgram}-${username}";
-                            inherit (pkgs) bubblewrap writeShellScriptBin;
-                          })
-                        ];
-                      }
-                    ];
-                }
-              )
-              usernames
-          )
-          agents))
-      ];
   };
 }
