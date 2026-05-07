@@ -1,10 +1,10 @@
 {den, ...}: {
   lunar.cuda = {
-    nixos = {...}: {
+    nixos = {config, ...}: {
       nix.settings = {
         substituters = ["https://cache.flox.dev"];
         trusted-public-keys = [
-          "cache.flox.dev:6Xu+CmU56tJCzVa2YpS2IZ+Ib73z6eXALm94RdU4pQE="
+          "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="
         ];
       };
 
@@ -13,6 +13,11 @@
         owner = "flox";
         repo = "nixpkgs";
         ref = "unstable";
+      };
+
+      programs.nix-ld = {
+        enable = true;
+        libraries = [config.boot.kernelPackages.nvidia_x11];
       };
     };
 
