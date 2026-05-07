@@ -85,16 +85,11 @@
 
     homeManager = {osConfig, ...}: let
       vars = {
-        IDK_GROQ_API_KEY = osConfig.sops.secrets.groq-personal-use-key;
         GROQ_API_KEY = osConfig.sops.secrets.groq-personal-use-key;
-        GEMINI_API_KEY = osConfig.sops.secrets.gemini-api-key;
         GITHUB_KEY = osConfig.sops.secrets.github-key;
-        GITEA_KEY = osConfig.sops.secrets.gitea-key;
 
         CACHIX_LOYSTONPAIS_AUTH_TOKEN = osConfig.sops.secrets.cachix-loystonpais-auth-token;
         CACHIX_AUTH_TOKEN = osConfig.sops.secrets.cachix-loystonpais-auth-token;
-
-        ATARAXY_BOT_TOKEN = osConfig.sops.secrets.ataraxy-bot-token;
 
         OPENROUTER_KEY = osConfig.sops.secrets.openrouter-key;
 
