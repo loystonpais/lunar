@@ -8,6 +8,8 @@
   lunar.dms = {
     includes = [
       lunar.kitty
+
+      lunar.dms._.theme-fixes
     ];
     nixos = {
       pkgs,
@@ -90,11 +92,20 @@
 
       programs.dank-material-shell = {
         enable = true;
-      };
 
-      #? Are these needed ?
-      dconf.enable = true;
-      dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
+        niri = {
+          includes.filesToInclude = [
+            "alttab"
+            "binds"
+            "colors"
+            "cursor"
+            "layout"
+            "outputs"
+            "windowrules"
+            "wpblur"
+          ];
+        };
+      };
 
       #### NIRI
 
@@ -133,6 +144,9 @@
           enable = true;
           configHome = config.home-manager.users.${user.userName}.home.homeDirectory;
         };
+
+        #TODO: Check this out
+        # https://github.com/AvengeMedia/DankMaterialShell/issues/2054
       };
     };
 
@@ -153,6 +167,54 @@
 
         systemd.user.services.dms.Service.ExecCondition = lib.mkIf (desktops != null) "${lib.getExe pkgs.bash} -c 'case \"$XDG_CURRENT_DESKTOP\" in ${desktopPattern}) exit 0;; *) exit 1;; esac'";
       };
+    };
+
+    provides.theme-fixes = {
+      includes = [
+        # https://github.com/AvengeMedia/DankMaterialShell/issues/2070
+        {
+          homeManager = {pkgs, ...}: {
+            home.packages = with pkgs; [
+              adw-gtk3
+            ];
+
+            dconf.enable = true;
+
+            dconf.settings = {
+              "org/gnome/desktop/interface" = {
+                gtk-theme = "adw-gtk3-dark";
+                color-scheme = "prefer-dark";
+              };
+            };
+          };
+        }
+
+        # https://discourse.nixos.org/t/dolphin-theming-help-qt/68407/2
+        {
+          nixos = {pkgs, ...}: {
+            environment = {
+              systemPackages = with pkgs; [
+                libsForQt5.qt5ct
+                kdePackages.qt6ct
+                adwaita-qt
+              ];
+              sessionVariables = {
+                QT_QPA_PLATFORMTHEME = "qt5ct";
+              };
+              etc = {
+                "xdg/qt5ct/qt5ct.conf".text = ''
+                  [Appearance]
+                  style=adwaita-dark
+                '';
+                "xdg/qt6ct/qt6ct.conf".text = ''
+                  [Appearance]
+                  style=adwaita-dark
+                '';
+              };
+            };
+          };
+        }
+      ];
     };
 
     provides.via-niri = {
