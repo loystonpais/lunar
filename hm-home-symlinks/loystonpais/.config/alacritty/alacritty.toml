@@ -1,0 +1,7 @@
+[general]
+import = [
+    "~/.config/alacritty/dank-theme.toml"
+]
+
+[font]
+size = 10.0
