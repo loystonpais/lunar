@@ -8,3 +8,9 @@ den
 .devenv
 
 .pre-commit-config.yaml
+
+.agent-worktrees
+
+pipe-in
+
+pipe-out
