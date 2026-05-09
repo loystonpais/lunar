@@ -8,7 +8,22 @@
       inputs.lazyvim.homeManagerModules.default
     ];
 
-    provides.lazyvim = {
+    provides.astronvim = {
+      homeManager = {
+        pkgs,
+        lib,
+        ...
+      }: {
+        home.packages = [
+          (pkgs.writeShellScriptBin "astronvim" ''
+            export NVIM_APPNAME=astronvim
+            exec ${lib.getExe pkgs.neovim} "$@"
+          '')
+        ];
+      };
+    };
+
+    provides.lazyvim-declarative = {
       homeManager = {
         pkgs,
         lib,
@@ -16,7 +31,8 @@
       }: {
         home.packages = [
           (pkgs.writeShellScriptBin "lazyvim" ''
-            NVIM_APPNAME=lazyvim ${lib.getExe pkgs.neovim}
+            export NVIM_APPNAME=lazyvim
+            exec ${lib.getExe pkgs.neovim} "$@"
           '')
         ];
 
