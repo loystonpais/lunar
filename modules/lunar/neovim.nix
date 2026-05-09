@@ -20,6 +20,27 @@
             exec ${lib.getExe pkgs.neovim} "$@"
           '')
         ];
+
+        xdg.desktopEntries.astronvim = {
+          name = "AstroNvim";
+          genericName = "Text Editor";
+          exec = "astronvim %F";
+          icon = "${inputs.self.outPath}/assets/astronvim.svg";
+          terminal = true;
+          categories = ["Utility" "TextEditor" "Development"];
+          mimeType = [
+            "text/plain"
+            "text/x-makefile"
+            "text/x-c++src"
+            "text/x-csrc"
+            "text/x-chdr"
+            "text/x-python"
+            "text/x-java"
+            "text/x-go"
+            "text/x-rust"
+            "application/x-shellscript"
+          ];
+        };
       };
     };
 
