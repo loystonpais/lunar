@@ -40,18 +40,12 @@
         github-key.owner = user.userName;
         openrouter-key.owner = user.userName;
         cachix-loystonpais-auth-token.owner = user.userName;
-      };
 
-      sops.secrets = {
         wireguard-server-common-private-key.owner = user.userName;
-      };
 
-      sops.secrets = {
         mc-offline-username.owner = user.userName;
         mc-offline-uuid.owner = user.userName;
-      };
 
-      sops.secrets = {
         "business-profile.jpg" = {
           format = "binary";
           sopsFile = ../../secrets/files/business-profile.jpg.enc;
@@ -67,20 +61,16 @@
           sopsFile = ../../secrets/rclone.ini;
           owner = user.userName;
         };
-      };
 
-      sops.secrets = {
         ataraxy-bot-token.owner = user.userName;
         ataraxy-environment-file.owner = user.userName;
-      };
 
-      sops.secrets = {
         loy-ftp-sh-dns-update-url.owner = user.userName;
         nixacle-gitea-db-password.owner = user.userName;
         gitea-key.owner = user.userName;
-      };
 
-      sops.secrets."freedns-afraid-domains/loy.ftp.sh/update-url".owner = user.userName;
+        "freedns-afraid-domains/loy.ftp.sh/update-url".owner = user.userName;
+      };
     };
 
     homeManager = {osConfig, ...}: let
