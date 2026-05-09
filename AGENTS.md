@@ -203,6 +203,35 @@ These need to be explicitly imported where needed.
 
 ---
 
+## Sub-Agent Orchestration & Communication
+
+### Roles & Identification
+- **Orchestrator (Main Agent)**: The primary agent running in the project root (Pane 0 of a TMUX session).
+- **Sub-Agent**: Task-specific agents running in isolated worktrees.
+- **Identification**: Sub-agents are explicitly told their role by the Main Agent and can self-detect by checking if their working directory is under `.agent-worktrees/`.
+
+### Worktree & Branching
+- The Main Agent creates worktrees in `.agent-worktrees/<name>` for large features.
+- Branches for sub-agents MUST be namespaced as `agents/<feature-name>`.
+
+### Agent Scopes & Execution
+- **AGENT_SCOPE**: Check the environment variable `AGENT_SCOPE` (values: `500` or `800`).
+- **CLI Commands**: Use `agent-<scope>-<cli>` (e.g., `agent-500-gemini`, `agent-800-opencode`).
+- **Scope Selection**: The Main Agent should prefer spawning sub-agents in a scope different from its own. If exhausted, it may use its own scope.
+- **Sandboxing**: All agents are `bwrap` sealed; they cannot write outside their execution directory.
+
+### TMUX & Communication Protocol
+- **Constraint**: The Main Agent MUST be running inside a TMUX session. If not, it must inform the user and abort.
+- **Layout**: Main Agent resides in **Pane 0**. Sub-agents reside in **Panes 1, 2, 3...**
+- **Connectivity**: Sub-agents only communicate with the Main Agent (hub-and-spoke model); they do not talk to each other.
+- **Mechanism**: Communication uses FIFO pipes (`pipe-in` and `pipe-out`) located in each sub-agent's worktree directory.
+- **Signaling**: 
+  1. Sub-agent writes the detailed message to its `pipe-in`.
+  2. Sub-agent sends a notification to the Main Agent via `tmux send-keys -t 0 "Subagent <N>: <short-message>" Enter`.
+  3. Main Agent reads from the corresponding pipe and responds by writing to the sub-agent's `pipe-out` and signaling back via `tmux send-keys`.
+
+---
+
 ## DO NOT MODIFY
 
 - `den/` directory (submodule, update via git)
