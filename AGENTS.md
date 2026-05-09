@@ -195,6 +195,7 @@ These need to be explicitly imported where needed.
 
 - **Icon Paths**: When referencing local assets (like icons) in Nix modules, always use `${inputs.self.outPath}/path/to/asset` to ensure they are correctly resolved within the flake.
 - **Git Strategy**: Always commit changes to the `agent` branch after every successful modification.
+- **Agent Orchestration**: For running multiple agents simultaneously, use `git worktree` to create isolated environments. Creating worktrees within a project subdirectory (e.g., `.agents/`) allows a primary agent to orchestrate and monitor sub-agents effectively. Remember to add the worktree directory to `.gitignore`.
 - **Pre-commit Hooks**: If a commit fails due to missing or broken pre-commit hooks (e.g., `.git/hooks/pre-commit`), use `git commit --no-verify` to proceed.
 
 ---
