@@ -211,7 +211,8 @@ These need to be explicitly imported where needed.
 - **Identification**: Sub-agents are explicitly told their role by the Main Agent and can self-detect by checking if their working directory is under `.agent-worktrees/`.
 
 ### Worktree & Branching
-- The Main Agent creates worktrees in `.agent-worktrees/<name>` for large features.
+- The Main Agent is responsible for creating the worktree in `.agent-worktrees/<name>` for large features.
+- The Main Agent MUST also create the FIFO pipe files (`pipe-in` and `pipe-out`) within the worktree directory before spawning the sub-agent.
 - Branches for sub-agents MUST be namespaced as `agents/<feature-name>`.
 
 ### Agent Scopes & Execution
