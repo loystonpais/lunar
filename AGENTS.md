@@ -196,6 +196,10 @@ These need to be explicitly imported where needed.
 - **Referencing Files**: To reference local files (assets, icons, configs, etc.) within Nix modules, always use `${inputs.self.outPath}/path/to/file` to ensure they are correctly resolved relative to the flake root.
 - **Agent Orchestration**: For running multiple agents simultaneously, use `git worktree` to create isolated environments. Creating worktrees within a project subdirectory (e.g., `.agent-worktrees/`) allows a primary agent to orchestrate and monitor sub-agents effectively. Remember to add the worktree directory to `.gitignore`.
 - **Pre-commit Hooks**: If a commit fails due to missing or broken pre-commit hooks (e.g., `.git/hooks/pre-commit`), use `git commit --no-verify` to proceed. When doing so, append `(no-verify)` to the commit message.
+- **Git Workflow for Agents**:
+  - **Commit After Feature**: Always commit changes immediately after completing a feature.
+  - **Commit Before Starting**: Before starting a new feature, check for and commit any uncommitted changes to ensure a clean slate.
+  - **Commit Messages**: Use a descriptive commit message for small, clear changes. For large or complex changes where a precise message is difficult, commit all files with a message prefixed with `stash:` (e.g., `stash: sync uncommitted changes`). Note: Since agents in worktrees are task-specific, these "stash" commits serve as checkpoints.
 
 ---
 
