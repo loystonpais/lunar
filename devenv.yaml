@@ -1,0 +1,8 @@
+inputs:
+  git-hooks:
+    url: github:cachix/git-hooks.nix
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
+  nixpkgs:
+    url: github:NixOS/nixpkgs/b86751bc4085f48661017fa226dee99fab6c651b

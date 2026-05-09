@@ -38,6 +38,7 @@
       };
 
       environment.systemPackages = with pkgs; [
+        lsd
         micro
         git
         fastfetch
@@ -63,7 +64,7 @@
         yq-go
         fzf
         bat
-        yt-dlp
+        # yt-dlp #! Dependency deno is broken on aarch64-linux
         fd
         libnotify
         zenity
@@ -71,6 +72,10 @@
         pinentry-curses
         grim
         slurp
+        yazi
+        tmux
+        zellij
+        bubblewrap
 
         python3Packages.markitdown
       ];
@@ -121,6 +126,18 @@
       };
 
       home.stateVersion = lib.mkDefault "25.11";
+
+      home.shellAliases = {
+        ls = "lsd";
+        lstr = "lsd -tr";
+        lst = "lsd --tree";
+        cpr = "rsync -avhP --partial --inplace";
+      };
+
+      home.sessionPath = [
+        "$HOME/.local/bin"
+        "$HOME/Downloads/bin"
+      ];
     };
 
     provides.substituters = {
@@ -167,6 +184,11 @@
         lunar.tailscale
         lunar.android
         lunar.devenv
+        lunar.zed
+
+        lunar.neovim
+        lunar.neovim._.lazyvim-declarative
+        lunar.neovim._.astronvim
 
         lunar.niri
 
@@ -176,13 +198,86 @@
         lunar.dms._.default-browser
 
         lunar.agents
-        lunar.agents._.prompt-notify-via-zenity
+        (lunar.agents._.jailed (pkgs: {
+            gemini = {
+              pkg = pkgs.gemini-cli;
+              perms = c:
+                with c; [
+                  (set-argv [
+                    "--yolo"
+                    (noescape "\"$@\"")
+                  ])
+
+                  (set-env "GEMINI_TELEMETRY_ENABLED" "0")
+                ];
+            };
+
+            claude = {
+              pkg = pkgs.claude-code;
+            };
+
+            opencode = {
+              pkg = pkgs.opencode;
+            };
+
+            bash = {
+              pkg = pkgs.bashInteractive;
+            };
+          }) (
+            builtins.listToAttrs (map (scope: {
+              name = scope;
+              value.perms = c:
+                with c; [];
+            }) ["800" "200" "500" "1000"])
+          ) {})
 
         lunar.infisical
         (lunar.infisical._.secret-sync {
           projectId = infisical.projectId;
           syncSec = "5h";
         })
+      ];
+    };
+
+    provides.vili = {
+      includes = [
+        lunar.determinate
+        lunar.ssh
+        lunar.git
+        lunar.dev
+
+        lunar.agents
+        (lunar.agents._.jailed (pkgs: {
+            gemini = {
+              pkg = pkgs.gemini-cli;
+              perms = c:
+                with c; [
+                  (set-argv [
+                    "--yolo"
+                    (noescape "\"$@\"")
+                  ])
+
+                  (set-env "GEMINI_TELEMETRY_ENABLED" "0")
+                ];
+            };
+
+            claude = {
+              pkg = pkgs.claude-code;
+            };
+
+            opencode = {
+              pkg = pkgs.opencode;
+            };
+          }) (
+            builtins.listToAttrs (map (scope: {
+              name = scope;
+              value.perms = c:
+                with c; [];
+            }) ["800" "200" "500" "1000"])
+          ) {})
+
+        # TODO: Remove this later when the dep with lunar.dev is removed
+        lunar.xonsh
       ];
     };
 
