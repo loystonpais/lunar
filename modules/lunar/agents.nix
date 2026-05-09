@@ -4,19 +4,6 @@
   inputs,
   ...
 }: let
-  globalPromptFiles = {
-    opencode = ".config/opencode/AGENTS.md";
-    gemini-cli = ".gemini/GEMINI.md";
-  };
-
-  addTextToFileInHome = file: text: {
-    homeManager.home.file.${file}.text = text;
-  };
-
-  addTextToFilesInHome = files: text: lib.mkMerge (map (f: addTextToFileInHome f text) files);
-
-  addTextToAllGlobalPromptFiles = addTextToFilesInHome (lib.attrValues globalPromptFiles);
-
   agentJailLib = {
     pkgs,
     jail-nix,
@@ -57,7 +44,7 @@
 
         basePermissions = c:
           with c; [
-            (unsafe-add-raw-args "--proc /proc")
+            (unsafe-add-raw-args "--bind /proc /proc")
             (unsafe-add-raw-args "--dev /dev") # a new /dev removes access to drives
             (unsafe-add-raw-args "--bind /tmp /tmp") # /tmp needn't be tmpfs always
             (unsafe-add-raw-args "--bind /run /run")
@@ -98,6 +85,8 @@
             (try-readwrite (noescape "~/.pyenv"))
             (try-readwrite (noescape "~/.poetry"))
             (try-readwrite (noescape "~/.config/pypoetry"))
+
+            (try-readwrite (noescape "~/.local/share/rtk"))
             # TODO: add more rw paths
 
             # Bind some paths from agent home to real home like .gemini
@@ -157,23 +146,27 @@ in {
             };
           in
             lib.mkMerge (
-              lib.attrsets.mapCartesianProduct ({
-                agentName,
-                scopeName,
-              }: let
-                agent = agents.${agentName};
-                scope = scopes.${scopeName};
+              lib.attrsets.mapCartesianProduct
+              (
+                {
+                  agentName,
+                  scopeName,
+                }: let
+                  agent = agents.${agentName};
+                  scope = scopes.${scopeName};
 
-                agentPerms = agent.perms or (_: []);
-                scopePerms = scope.perms or (_: []);
-                defaultAgentPerms = defaultAgentsPerms.${agentName} or (c: []);
-              in {
-                home.packages = [
-                  (jailed scopeName agent.pkg {
-                    extraPerms = c: (agentPerms c) ++ (scopePerms c) ++ (defaultAgentPerms c);
-                  })
-                ];
-              }) {
+                  agentPerms = agent.perms or (_: []);
+                  scopePerms = scope.perms or (_: []);
+                  defaultAgentPerms = defaultAgentsPerms.${agentName} or (c: []);
+                in {
+                  home.packages = [
+                    (jailed scopeName agent.pkg {
+                      extraPerms = c: (agentPerms c) ++ (scopePerms c) ++ (defaultAgentPerms c);
+                    })
+                  ];
+                }
+              )
+              {
                 agentName = builtins.attrNames agents;
                 scopeName = builtins.attrNames scopes;
               }
@@ -186,52 +179,35 @@ in {
       jail,
       ...
     }: {
-      home.packages = with pkgs; [
-        gemini-cli
-        opencode
-      ];
     };
 
-    provides.prompt-minimal-tokens = lib.mkMerge [
-      (addTextToAllGlobalPromptFiles ''
-        # Generating Minimal Tokens
+    # provides.prompt-notify-via-zenity = lib.mkMerge [
+    #   {
+    #     homeManager = {pkgs, ...}: {
+    #       home.packages = with pkgs; [zenity];
+    #     };
+    #   }
 
-        ## General Conversations
-        Be terse. No filler, greetings, or meta-commentary. Omit pleasantries, caveats, and redundant explanations. Answer directly. Use lists only when structure genuinely helps. Prefer short sentences. If a one-word answer suffices, give one word.
+    #   (addTextToAllGlobalPromptFiles ''
+    #     # Task Completion Notifications
 
-        ## Coding Agent
-        No filler or preamble. Code only unless explanation is explicitly asked. Comments only on non-obvious logic. No "here's the code" intros.
+    #     After completing every task, notify the user using `zenity`. Run the following command in the terminal as the final step:
 
-      '')
-    ];
+    #     ```bash
+    #     zenity --notification --text="<short summary of what was completed>"
+    #     ```
 
-    provides.prompt-notify-via-zenity = lib.mkMerge [
-      {
-        homeManager = {pkgs, ...}: {
-          home.packages = with pkgs; [zenity];
-        };
-      }
+    #     Examples:
+    #     ```bash
+    #     zenity --notification --text="Build complete"
+    #     zenity --notification --text="Files refactored successfully"
+    #     zenity --notification --text="Tests passed"
+    #     zenity --notification --text="Dependency installation done"
+    #     ```
 
-      (addTextToAllGlobalPromptFiles ''
-        # Task Completion Notifications
+    #     Keep the message short and specific to what was just done. Always run this as the last step, after all other work is finished.
 
-        After completing every task, notify the user using `zenity`. Run the following command in the terminal as the final step:
-
-        ```bash
-        zenity --notification --text="<short summary of what was completed>"
-        ```
-
-        Examples:
-        ```bash
-        zenity --notification --text="Build complete"
-        zenity --notification --text="Files refactored successfully"
-        zenity --notification --text="Tests passed"
-        zenity --notification --text="Dependency installation done"
-        ```
-
-        Keep the message short and specific to what was just done. Always run this as the last step, after all other work is finished.
-
-      '')
-    ];
+    #   '')
+    # ];
   };
 }
