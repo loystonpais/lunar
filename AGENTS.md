@@ -1,4 +1,4 @@
-# Agent Instructions for (Lunar Nix)
+# Agent Instructions for Lunar Nix
 
 ## Project Overview
 
@@ -22,10 +22,10 @@ git clone https://github.com/vic/den.git den/
 
 ---
 
-## Step 2: Read These Files First
+## Step 2: Essential Reading
 
-1. **`README.md`** - Project overview
-2. **`den/AGENTS_EXAMPLE.md`** - Dendritic pattern documentation (read this before touching any code!)
+1. **`README.md`**: Project overview and basic setup.
+2. **`den/AGENTS_EXAMPLE.md`**: Detailed documentation on the dendritic pattern (read this before modifying any code!).
 
 ---
 
@@ -41,12 +41,10 @@ git clone https://github.com/vic/den.git den/
 │   ├── schema.nix      # Entity schema definitions
 │   ├── outputs.nix     # Flake output generation
 │   ├── hosts/          # Host-specific configurations
-│   ├── lunar/          # Feature modules (aspects)
+│   ├── lunar/          # Feature aspects
 │   │   ├── plasma.nix  # KDE Plasma 6
 │   │   ├── gaming.nix  # Steam, GameMode, PRIME offload
-│   │   ├── dev.nix     # devenv, VSCode extensions
-│   │   ├── audio.nix   # PipeWire configuration
-│   │   ├── browsers.nix # Firefox, Zen Browser, Chromium
+│   │   ├── dev.nix     # Development environment
 │   │   └── ...
 │   └── users/
 │       └── loystonpais/ # Primary user configuration
@@ -60,8 +58,7 @@ git clone https://github.com/vic/den.git den/
 ## Key Concepts
 
 ### Dendritic Pattern
-
-The pattern uses **aspects** as the primary unit of organization. An aspect declares behavior per Nix class (`nixos`, `homeManager`, etc.):
+The primary unit of organization is the **aspect**. An aspect declares behavior across multiple Nix classes (`nixos`, `homeManager`, etc.):
 
 ```nix
 lunar.plasma = mode: {
@@ -72,126 +69,71 @@ lunar.plasma = mode: {
 ```
 
 ### Parametric Dispatch
-
-Functions use `builtins.functionArgs` introspection. They only activate when their required arguments are present:
-- `{ host, ... }` matches any context with `host`
-- `{ host, user }` only matches when both exist
-- `{ home }` matches standalone home contexts only
-
-### Context Pipeline
-
-Host/User/Home declarations flow through `den.ctx` to resolve into fully applied Nix module inputs.
+Logic is activated via `builtins.functionArgs` introspection. Aspects only trigger when their required arguments are supplied:
+- `{ host, ... }`: Matches any context containing a `host`.
+- `{ host, user }`: Matches only when both `host` and `user` are present.
+- `{ home }`: Matches standalone Home Manager contexts.
 
 ---
 
 ## Important Conventions
 
 ### Terminology: "Aspect" Not "Module"
-
-This configuration uses the **dendritic pattern** where the primary unit of organization is called an **aspect** (not a module). Files in `modules/lunar/` are **aspects**, not modules. When referring to these, always use "aspect" (e.g., "the podman aspect", "add a new aspect").
+Always refer to files in `modules/lunar/` as **aspects**. The term "module" is reserved for standard NixOS/Home Manager modules.
 
 ### Commit Message Format
+Format: `area: description`
 
-Use the format: `area: description`
-
-- **area**: Can be:
-  - An aspect name from `modules/lunar/` (e.g., `sops`, `ssh`, `secrets`, `vscode`, `audio`, `plasma`, `podman`, `browser`)
-  - A hostname when changing code in `modules/hosts/<hostname>`
-  - `lunar:` or `flake:` for changes to the flake in general
-  - Combined with more context when needed (e.g., `modules: android:`)
-
-Examples from this project:
-```
-sops: add useful packages
-ssh: fix ssh on some terms
-secrets: add new pub key
-vscode: add AI extensions
-flake: add cache priority
-roglaptop: enable cuda
-lunar: add AGENT.md and README.md
-```
-
-Rules:
-- Use lowercase for area and description
-- No period at the end
-- Keep it to one line
-- Use imperative mood ("add", "fix", "update", "remove" not "added", "fixed")
-
-### Lunar Namespace
-
-Features are defined in `modules/lunar/` and automatically available as `lunar.<feature>` through the `den.namespace` mechanism in `modules/den.nix`.
-
-### Host Configurations
-
-```nix
-den.aspects.myhost = {
-  includes = [ den.aspects.myuser ];
-  nixos = { ... }: { ... };
-  homeManager = { ... }: { ... };
-};
-```
-
-### User Configurations
-
-```nix
-den.aspects.loystonpais = {
-  includes = [
-    den.provides.primary-user
-    (den.provides.user-shell "zsh")
-  ];
-  nixos = { pkgs, ... }: { ... };
-  homeManager = { pkgs, ... }: { ... };
-};
-```
+- **area**: The aspect name, hostname, or general category (e.g., `sops`, `roglaptop`, `lunar`, `flake`).
+- **Rules**: Lowercase, no trailing period, imperative mood (e.g., `fix:`, `add:`).
 
 ### Underscore-prefixed Directories
-
-Directories and files starting with `_` (e.g., `_hw/`, `_vfio/`, `_services/`, `_infect/`) are **not auto-imported**. They are intentionally kept outside the dendritic pattern:
-
-- Either because it doesn't make sense to convert them yet
-- Or the conversion is work in progress
-
-These need to be explicitly imported where needed.
+Directories starting with `_` (e.g., `_hw/`, `_services/`) are **not auto-imported**. They must be explicitly imported where needed.
 
 ---
 
-## Feature Highlights
+## Agent Workflow & Guidelines
 
-- **Desktop**: KDE Plasma 6 with WhiteSur theme
-- **Gaming**: Steam, Heroic, PrismLauncher, MangoHUD, GameMode, NVIDIA PRIME offload
-- **Development**: devenv, VSCode (60+ extensions), Godot, Blender
-- **Containers**: Podman, Distrobox, Flatpak
-- **Virtualization**: Libvirt/QEMU, KVMFR (Looking Glass), Waydroid
-- **Browsers**: Firefox, Zen Browser, Chromium (Brave)
-- **Audio**: PipeWire with ALSA, Pulse, Jack support
-- **Shell**: xonsh (primary), zsh, bash with Starship prompt
-- **Secrets**: SOPS with age encryption
-- **Remote Deploy**: Tailscale SSH, nixos-rebuild over SSH
+### Referencing Files
+To reference local files (assets, icons, configs) within Nix modules, use `${inputs.self.outPath}/path/to/file`. This ensures the path is correctly resolved relative to the flake root.
 
----
-
-## Key Files for Reference
-
-| File | Purpose |
-|------|---------|
-| `flake.nix` | Main flake entry point |
-| `modules/defaults.nix` | Global defaults (mutual providers, nixpkgs config) |
-| `modules/den.nix` | Lunar namespace creation |
-| `modules/schema.nix` | Schema base modules |
-| `modules/users/loystonpais/loystonpais.nix` | Primary user configuration |
-| `den/nix/lib/parametric.nix` | Parametric dispatch logic |
-| `den/modules/options.nix` | `den.hosts`, `den.homes`, `den.schema` options |
+### Git Workflow
+- **Commit Before Starting**: Before beginning a feature, commit any uncommitted changes.
+- **Commit After Feature**: Commit immediately upon completing a task or feature.
+- **Commit Messages**: 
+    - Use descriptive messages for standard changes.
+    - Use `stash: <description>` for large checkpoints where a precise message is difficult.
+- **Pre-commit Hooks**: If a commit fails due to broken hooks, use `git commit --no-verify` and append `(no-verify)` to the message.
 
 ---
 
-## CI/CD
+## Sub-Agent Orchestration & Communication
 
-- **Cachix**: Pushes built packages to `loystonpais.cachix.org`
-- **Remote Rebuild**: Uses Tailscale to deploy to remote hosts
+### Roles & Identification
+- **Orchestrator (Main Agent)**: Runs in the project root (**Pane 0** of a TMUX session).
+- **Sub-Agent**: Task-specific agents running in isolated worktrees under `.agent-worktrees/`.
+
+### Worktree Management
+- The Main Agent creates worktrees in `.agent-worktrees/<feature-name>`.
+- Branches MUST be namespaced as `agents/<feature-name>`.
+- **Setup**: The Main Agent MUST create the worktree and initialize the FIFO pipes (`pipe-in`, `pipe-out`) using `mkfifo` before spawning a sub-agent.
+
+### Scopes & Execution
+- **AGENT_SCOPE**: Check the `AGENT_SCOPE` env var (values: `500` or `800`).
+- **CLI Commands**: `agent-<scope>-<cli>` (e.g., `agent-500-gemini`).
+- **Sandboxing**: All agents are `bwrap`-sandboxed and cannot write outside their execution directory.
+
+### TMUX Communication Protocol (Hub-and-Spoke)
+- **Constraint**: The Main Agent MUST run inside TMUX. If not, inform the user and abort.
+- **Mechanism**: 
+    1. **Signal**: A sub-agent writes a message to its `pipe-in` and notifies the Main Agent:
+       `tmux send-keys -t 0 "Subagent <N>: <short-summary>" Enter`
+    2. **Read**: The Main Agent reads from the sub-agent's `pipe-in`.
+    3. **Respond**: The Main Agent writes to the sub-agent's `pipe-out` and signals back via `tmux send-keys`.
 
 ---
 
 ## DO NOT MODIFY
 
-- `den/` directory (submodule, update via git)
+- `den/` directory (external submodule)
 - `flake.lock` (auto-generated)
