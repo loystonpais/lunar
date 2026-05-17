@@ -22,6 +22,11 @@
 
     nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
 
+    # Has systemd 259 which is the last version to support 5.4 Kernel
+    nixpkgs-kernel-5_4.url = "github:NixOS/nixpkgs/b86751bc4085f48661017fa226dee99fab6c651b";
+
+    finix.url = "github:finix-community/finix?ref=main";
+
     import-tree.url = "github:vic/import-tree";
 
     flake-aspects.url = "github:vic/flake-aspects";
