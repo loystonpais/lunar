@@ -7,7 +7,7 @@
 }: {
   flake.den = den;
 
-  den.ctx.user.includes = [den._.mutual-provider];
+  den.schema.user.includes = [den._.mutual-provider];
 
   den.default = {
     includes = [

@@ -6,7 +6,7 @@
 }: {
   imports = [inputs.den.flakeOutputs.packages];
 
-  den.ctx.flake-system.into.host = {system}:
+  den.schema.flake-system.includes.into.host = {system}:
     map (host: {inherit host;})
     (lib.attrValues den.hosts.${system});
 }
