@@ -3,10 +3,93 @@
   lunar,
   lib,
   ...
-}: {
+}: let
+  nixpkgs-with-systemd-v259 =
+    import (fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs/archive/b86751bc4085f48661017fa226dee99fab6c651b.tar.gz";
+      sha256 = "sha256:0z1xwfdy3blm5n06lyabyjhadiy79rbm5z4kf309z85kg65mih3b";
+    }) {
+      system = "aarch64-linux";
+    };
+
+  systemd-v259 = nixpkgs-with-systemd-v259.pkgs.systemd;
+in {
   den.aspects.vili = {
     includes = [
       den.aspects.loystonpais
+
+      # # Force systemd package to v259 since thats the last version to support 5.4 Kernel # Not working bruh
+      # {
+      #   nixos = {pkgs, ...}: {
+      #     systemd.package = lib.mkForce systemd-v259;
+      #     # boot.initrd.systemd.package = lib.mkForce systemd-v259; # May not be needed
+      #   };
+      # }
+
+      # Simplify setting wlan0
+      {
+        nixos = {pkgs, ...}: let
+          wlan0 = pkgs.writeShellScriptBin "wlan0" ''
+            set -e
+
+            case "$1" in
+              monitor)
+                ip link set wlan0 down
+                echo 4 | sudo tee /sys/module/wlan/parameters/con_mode > /dev/null
+                ip link set wlan0 up
+                echo "Monitor mode enabled"
+                ;;
+              managed)
+                ip link set wlan0 down
+                echo 0 | sudo tee /sys/module/wlan/parameters/con_mode > /dev/null
+                ip link set wlan0 up
+                echo "Managed mode enabled"
+                ;;
+              toggle)
+                mode=$(cat /sys/module/wlan/parameters/con_mode)
+                if [ "$mode" = "4" ]; then
+                  $0 managed
+                else
+                  $0 monitor
+                fi
+                ;;
+              status)
+                mode=$(cat /sys/module/wlan/parameters/con_mode)
+                case "$mode" in
+                  0) echo "managed" ;;
+                  4) echo "monitor" ;;
+                  *) echo "($mode)" ;;
+                esac
+                ;;
+              *)
+                echo "Usage: wlan0 [monitor|managed|toggle|status]" >&2
+                exit 1
+                ;;
+            esac
+          '';
+        in {
+          environment.systemPackages = [
+            wlan0
+          ];
+        };
+      }
+
+      # Set a static ip for wlan0
+      {
+        nixos = {pkgs, ...}: {
+          systemd.services.wlan0-static-ip = {
+            description = "Add static IP to wlan0";
+            after = ["network-pre.target"];
+            before = ["network.target"];
+            wantedBy = ["multi-user.target"];
+            serviceConfig = {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              ExecStart = "-${pkgs.iproute2}/bin/ip address add 192.168.55.1/24 dev wlan0";
+            };
+          };
+        };
+      }
     ];
 
     nixos = {
@@ -156,6 +239,27 @@
       systemd.services.wpa_supplicant.enable = false;
 
       networking.firewall.enable = false;
+
+      # Properly fix udev stuff
+      systemd.services.systemd-udev-trigger.serviceConfig.ExecStart = lib.mkForce [
+        ""
+        "-udevadm trigger --subsystem-match=usb --subsystem-match=block --subsystem-match=input --subsystem-match=tty --subsystem-match=net"
+      ];
+      systemd.services."systemd-udevd".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
+      systemd.services."systemd-udev-trigger".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
+      systemd.services."systemd-udev-settle".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
+      systemd.sockets."systemd-udevd-kernel".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
+      systemd.sockets."systemd-udevd-control".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
+
+      services.logind.settings.Login = {
+        HandlePowerKey = "ignore";
+        HandleSuspendKey = "ignore";
+        HandleHibernateKey = "ignore";
+        HandlePowerKeyLongPress = "ignore";
+        HandlePowerKeyLongPressHibernate = "ignore";
+      };
+
+      systemd.services.NetworkManager.enable = lib.mkDefault false;
 
       system.stateVersion = "26.05";
     };
