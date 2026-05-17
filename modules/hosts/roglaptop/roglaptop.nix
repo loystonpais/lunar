@@ -74,6 +74,6 @@
   };
 
   den.aspects.roglaptop.provides.to-users = {user, ...}: {
-    users.users.${user}.extraGroups = ["i2c"];
+    users.users.${user.userName}.extraGroups = ["i2c"];
   };
 }
