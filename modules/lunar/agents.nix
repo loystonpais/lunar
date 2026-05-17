@@ -161,7 +161,15 @@ in {
                 in {
                   home.packages = [
                     (jailed scopeName agent.pkg {
-                      extraPerms = c: (agentPerms c) ++ (scopePerms c) ++ (defaultAgentPerms c);
+                      extraPerms = c:
+                        (agentPerms c)
+                        ++ (scopePerms c)
+                        ++ (defaultAgentPerms c)
+                        ++ (with c; [
+                          (add-runtime ''
+                            PATH="$PATH:${lib.makeBinPath (builtins.catAttrs "pkg" (lib.attrValues agents))}"
+                          '')
+                        ]);
                     })
                   ];
                 }
