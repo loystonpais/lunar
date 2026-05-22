@@ -335,6 +335,9 @@
         lunar.server._.vm-enhancements
         lunar.server._.no-ipv6
 
+        lunar.acme
+        (lunar.acme._.freedns-afraid {domainName = "diviner.loy.ftp.sh";})
+
         # TODO: Remove this later when the dep with lunar.dev is removed
         lunar.xonsh
       ];
