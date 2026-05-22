@@ -16,6 +16,8 @@
       }: {
         home.packages = [
           (pkgs.writeShellScriptBin "astronvim" ''
+            export PATH="$PATH:${lib.makeBinPath [pkgs.gcc]}"
+            export CC=gcc
             export NVIM_APPNAME=astronvim
             exec ${lib.getExe pkgs.neovim} "$@"
           '')
@@ -27,7 +29,11 @@
           exec = "astronvim %F";
           icon = "${inputs.self.outPath}/assets/astronvim.svg";
           terminal = true;
-          categories = ["Utility" "TextEditor" "Development"];
+          categories = [
+            "Utility"
+            "TextEditor"
+            "Development"
+          ];
           mimeType = [
             "text/plain"
             "text/x-makefile"
