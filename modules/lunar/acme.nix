@@ -26,7 +26,7 @@
         security.acme = {
           acceptTerms = true;
           certs = {
-            "${domainName}" = cert;
+            "${domainName}" = lib.mkIf (cert != null) cert;
           };
         };
 
