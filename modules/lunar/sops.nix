@@ -70,6 +70,7 @@
         gitea-key.owner = user.userName;
 
         "freedns-afraid-domains/loy.ftp.sh/update-url".owner = user.userName;
+        "freedns-afraid-domains/diviner.loy.ftp.sh/update-url".owner = user.userName;
       };
     };
 
