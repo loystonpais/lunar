@@ -1,6 +1,8 @@
 {den, ...}: {
   lunar.gaming = {user, ...}: {
     nixos = {pkgs, ...}: {
+      boot.kernelModules = ["ntsync"];
+
       programs.steam = {
         enable = true;
         remotePlay.openFirewall = true;
@@ -12,7 +14,7 @@
         heroic
         antimicrox
         mangohud
-        bottles
+        #! bottles # Build failure
         piper
       ];
 
