@@ -4,7 +4,11 @@
       den.aspects.loystonpais
     ];
 
-    nixos = {pkgs, ...}: {
+    nixos = {
+      pkgs,
+      config,
+      ...
+    }: {
       imports = [
         ./_infect/configuration.nix
       ];
@@ -14,6 +18,24 @@
         nh
         bat
       ];
+
+      services._3proxy = {
+        enable = true;
+        services = [
+          {
+            type = "socks";
+            auth = ["strong"];
+            acl = [
+              {
+                rule = "allow";
+                users = ["loystonpais" "evilnosoul"];
+              }
+            ];
+          }
+        ];
+      };
+
+      networking.firewall.allowedTCPPorts = [1080];
     };
   };
 }
