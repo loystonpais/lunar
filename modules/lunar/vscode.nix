@@ -226,6 +226,17 @@
                   nash.awesome-flutter-snippets
                 ]);
             };
+
+            android = {
+              userSettings = commonSettings;
+              extensions =
+                commonExtensions
+                ++ (with pkgs.vscode-marketplace; [
+                  vscjava.vscode-gradle
+                  dotjoshjohnson.xml
+                  mathiasfrohlich.kotlin
+                ]);
+            };
           };
         };
       };
