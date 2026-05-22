@@ -33,6 +33,8 @@
             ];
           }
         ];
+
+        usersFile = "/var/lib/3proxy/users";
       };
 
       networking.firewall.allowedTCPPorts = [1080];

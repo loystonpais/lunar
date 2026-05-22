@@ -103,8 +103,6 @@
       programs.nix-ld.enable = true;
 
       programs.bash.blesh.enable = true;
-
-      services._3proxy.usersFile = config.users.users.loystonpais.home + "/.3proxy-users";
     };
 
     homeManager = {pkgs, ...}: {
