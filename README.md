@@ -4,48 +4,62 @@
   <img src="assets/artwork/logo.svg" width="200" alt="Lunar Nix logo">
 </p>
 
-A personal NixOS configuration for a reliable, reproducible system across various devices. It uses the **dendritic pattern** (inspired by [vic/den](https://github.com/vic/den)) to manage multiple hosts with a declarative, aspect-oriented approach.
+Personal NixOS configuration for a reliable, reproducible system. Uses [den](https://github.com/vic/den) for a declarative, aspect-oriented setup across multiple hosts.
 
-## 🌌 Overview
+## Overview
 
-Lunar Nix is organized around **aspects**, which are independent feature modules that can be applied to both NixOS and Home Manager. This allows for a clean separation of concerns and easy sharing of configuration across different machines.
+Lunar Nix is organized around **aspects**: independent feature units that apply to both NixOS and Home Manager. This ensures clean separation of concerns and easy configuration sharing.
 
 - **Reproducible**: Built on Nix flakes for consistent deployments.
-- **Aspect-Oriented**: Features are encapsulated in "aspects" located in `modules/lunar/`.
-- **Parametric Dispatch**: Configuration adapts automatically based on the context (host, user, etc.).
+- **Aspect-Oriented**: Features are encapsulated in aspects under `modules/lunar/`.
+- **Parametric Dispatch**: Configuration adapts automatically based on context (host, user, etc.).
 
-## 🖥️ Infrastructure
+## Screenshots
 
-This configuration manages a mix of personal workstations and remote servers:
+<p align="center">
+  <img src="assets/screenshots/plasma1.png" width="800" alt="KDE Plasma 6 Desktop">
+</p>
 
-- **roglaptop** - Primary mobile workstation (ROG Laptop) with NVIDIA graphics, KDE Plasma 6, and development tools.
-- **nixacle** - Cloud VPS (Oracle Always Free) running server-side services and workloads.
-- **diviner** - Cloud VPS (Oracle Always Free) for additional services and testing.
+<p align="center">
+  <img src="assets/screenshots/plasma-productive1.png" width="800" alt="Productive Workflow">
+</p>
 
-## ✨ Key Features
+<p align="center">
+  <img src="assets/screenshots/zed-editor1.png" width="800" alt="Zed Editor">
+</p>
 
-### 🎨 Desktop & UI
-- **KDE Plasma 6**: Modern desktop environment with customized themes (WhiteSur/Mac style).
-- **Niri & Material Shell**: Alternative window management and UI experiences.
-- **Fonts & Graphics**: Curated selection of fonts and optimized graphics drivers (NVIDIA/CUDA).
+## Infrastructure
 
-### 🎮 Gaming & Multimedia
+This configuration manages a variety of hosts:
+
+- **roglaptop**: Primary workstation (ROG Laptop) with NVIDIA graphics and Plasma 6.
+- **nixacle**: Oracle VPS for web services and server workloads.
+- **diviner**: Oracle VPS for testing and secondary services.
+- **vili**: Aarch64 container environment (Droidspaces).
+
+## Key Features
+
+### Desktop & UI
+- **KDE Plasma 6**: Modern desktop environment with custom themes.
+- **Niri & Material Shell**: Alternative window management experiences.
+- **Fonts & Graphics**: Curated fonts and optimized NVIDIA/CUDA drivers.
+
+### Gaming & Multimedia
 - **Gaming Stack**: Steam, Heroic, PrismLauncher, MangoHUD, and GameMode.
-- **Audio**: PipeWire with full compatibility for ALSA, PulseAudio, and JACK.
-- **Streaming**: OBS Studio and multimedia production tools.
+- **Audio**: PipeWire with ALSA, PulseAudio, and JACK compatibility.
 
-### 🛠️ Development & Tools
-- **Languages & Frameworks**: Full support for various dev environments via `devenv`.
-- **VSCode**: Pre-configured with 60+ extensions and AI enhancements.
+### Development & Tools
+- **Languages & Frameworks**: Support for multiple environments via `devenv`.
+- **VSCode**: Pre-configured with extensions and AI enhancements.
 - **Virtualization**: Libvirt/QEMU, KVMFR (Looking Glass), Podman, and Distrobox.
-- **Shells**: `xonsh` (primary), `zsh`, and `bash` with Starship prompt.
+- **Shells**: `xonsh` (primary), `zsh`, and `bash` with Starship.
 
-### 🔐 Security & Operations
-- **SOPS-nix**: Secrets managed with SOPS and age encryption.
-- **Networking**: Tailscale for secure mesh networking and remote access.
-- **CI/CD**: Cachix for binary caching to speed up builds.
+### Security & Operations
+- **SOPS-nix**: Secrets managed with SOPS and age.
+- **Networking**: Tailscale for secure mesh networking.
+- **CI/CD**: Cachix for binary caching.
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 /etc/nixos/
@@ -56,25 +70,23 @@ This configuration manages a mix of personal workstations and remote servers:
 │   ├── lunar/          # Feature aspects (Plasma, Gaming, Dev, etc.)
 │   ├── hosts/          # Host-specific configurations
 │   └── users/          # User-specific aspects
-├── packages/           # Custom Nix packages
-└── secrets/            # SOPS-encrypted secrets
+└── packages/           # Custom Nix packages
 ```
 
-## 🚀 Usage
+## Usage
 
-To rebuild the system for the current host:
+Rebuild for the current host:
 
 ```bash
 sudo nixos-rebuild switch --flake .#
 ```
 
-To update dependencies:
+Update dependencies:
 
 ```bash
 nix flake update
 ```
 
-## 📜 Credits
+## Credits
 
-- **Dendritic Pattern**: Inspired by [vic/den](https://github.com/vic/den).
-- **Artwork**: Custom logo and assets located in `assets/`.
+- **Dendritic Pattern**: Uses [den](https://github.com/vic/den)
