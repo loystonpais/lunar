@@ -300,6 +300,10 @@
 
         lunar.acme
         (lunar.acme._.freedns-afraid {domainName = "loy.ftp.sh";})
+        (lunar.acme._.dedyn-io {
+          domain = "loy";
+          cert = null;
+        })
 
         (lunar.rclone {
           remotes = [
@@ -336,12 +340,14 @@
         lunar.server._.no-ipv6
 
         lunar.acme
-        (lunar.acme._.freedns-afraid {
-          domainName = "diviner.loy.ftp.sh";
+
+        (lunar.acme._.dedyn-io {
+          domain = "diviner.loy";
           cert = null;
         })
-        (lunar.acme._.freedns-afraid {
-          domainName = "loy.us.to";
+
+        (lunar.acme._.dedyn-io {
+          domain = "matrix.loy";
           cert = null;
         })
 
