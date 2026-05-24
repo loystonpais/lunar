@@ -51,7 +51,27 @@
               '';
               tryFiles = "$uri $uri/ =404";
             };
+
+            "/matrix" = {
+              proxyPass = "http://localhost:6167";
+              proxyWebsockets = true;
+            };
           };
+        };
+      };
+
+      # Matrix Conduit
+      services.matrix-conduit = {
+        enable = true;
+        settings.global = {
+          address = "localhost";
+          port = 6167;
+          server_name = "loy.us.to/matrix";
+          allow_encryption = true;
+          allow_federation = true;
+          allow_registration = false;
+          database_backend = "rocksdb";
+          trusted_servers = ["matrix.org"];
         };
       };
     };
