@@ -25,6 +25,18 @@
         recommendedGzipSettings = true;
         recommendedOptimisation = true;
 
+        virtualHosts = {
+          "matrix.loy.dedyn.io" = {
+            forceSSL = true;
+            enableACME = true;
+
+            locations."/" = {
+              proxyPass = "http://localhost:6167";
+              proxyWebsockets = true;
+            };
+          };
+        };
+
         virtualHosts."loy.ftp.sh" = {
           enableACME = true;
           forceSSL = true;
@@ -51,11 +63,6 @@
               '';
               tryFiles = "$uri $uri/ =404";
             };
-
-            "/matrix" = {
-              proxyPass = "http://localhost:6167";
-              proxyWebsockets = true;
-            };
           };
         };
       };
@@ -66,7 +73,7 @@
         settings.global = {
           address = "127.0.0.1";
           port = 6167;
-          server_name = "loy.us.to/matrix";
+          server_name = "matrix.loy.dedyn.io";
           allow_encryption = true;
           allow_federation = true;
           allow_registration = false;
