@@ -236,6 +236,11 @@
           projectId = infisical.projectId;
           syncSec = "5h";
         })
+
+        (lunar.acme._.dedyn-io {
+          domain = "test.loy";
+          cert = null;
+        })
       ];
     };
 
@@ -304,6 +309,10 @@
           domain = "loy";
           cert = null;
         })
+        (lunar.acme._.dedyn-io {
+          domain = "matrix.loy";
+          cert = null;
+        })
 
         (lunar.rclone {
           remotes = [
@@ -343,11 +352,6 @@
 
         (lunar.acme._.dedyn-io {
           domain = "diviner.loy";
-          cert = null;
-        })
-
-        (lunar.acme._.dedyn-io {
-          domain = "matrix.loy";
           cert = null;
         })
 
