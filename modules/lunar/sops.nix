@@ -65,7 +65,6 @@
         ataraxy-bot-token.owner = user.userName;
         ataraxy-environment-file.owner = user.userName;
 
-        loy-ftp-sh-dns-update-url.owner = user.userName;
         nixacle-gitea-db-password.owner = user.userName;
         gitea-key.owner = user.userName;
 
