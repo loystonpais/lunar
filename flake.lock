@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "artifacts": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778836831,
+        "narHash": "sha256-Dou/ceLNa47497dVDKTpn7Qvdn24MT41Qlqkfo9FEoU=",
+        "owner": "loystonpais",
+        "repo": "Droidspaces-OSS",
+        "rev": "e8b17887059b31f9862a1b693a5b68b03487cf4c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "loystonpais",
+        "ref": "artifacts",
+        "repo": "Droidspaces-OSS",
+        "type": "github"
+      }
+    },
     "den": {
       "locked": {
         "lastModified": 1778884218,
@@ -94,7 +111,49 @@
         "type": "github"
       }
     },
+    "droidspaces": {
+      "inputs": {
+        "artifacts": "artifacts",
+        "finix": "finix",
+        "flake-parts": "flake-parts_2",
+        "import-tree": "import-tree",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-with-systemd-v257": "nixpkgs-with-systemd-v257",
+        "nixpkgs-with-systemd-v259": "nixpkgs-with-systemd-v259"
+      },
+      "locked": {
+        "lastModified": 1779508825,
+        "narHash": "sha256-xRYGZWc6CXZBwozTHQBNqwQu0tDz5qd/8pW1fh/wUH0=",
+        "owner": "loystonpais",
+        "repo": "Droidspaces-OSS",
+        "rev": "9ab49f778c0f2d5a9a1f81746268a03ea3c7b537",
+        "type": "github"
+      },
+      "original": {
+        "owner": "loystonpais",
+        "repo": "Droidspaces-OSS",
+        "type": "github"
+      }
+    },
     "finix": {
+      "locked": {
+        "lastModified": 1778975258,
+        "narHash": "sha256-VJ+vqtRre/wK0pC7gufYDAxRWWrwqxqww9HxYRGDwaM=",
+        "owner": "finix-community",
+        "repo": "finix",
+        "rev": "472f60067422037c3fac09ede84ce70447e5c06e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "finix-community",
+        "ref": "main",
+        "repo": "finix",
+        "type": "github"
+      }
+    },
+    "finix_2": {
       "locked": {
         "lastModified": 1778975258,
         "narHash": "sha256-VJ+vqtRre/wK0pC7gufYDAxRWWrwqxqww9HxYRGDwaM=",
@@ -162,6 +221,24 @@
         "url": "https://flakehub.com/f/hercules-ci/flake-parts/0.1"
       }
     },
+    "flake-parts_2": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1778716662,
+        "narHash": "sha256-m1Yf0wZ8j1OHjTc2UwHwyQRSnNeSgLJOd7q5Y45hzi4=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -227,6 +304,21 @@
       }
     },
     "import-tree": {
+      "locked": {
+        "lastModified": 1778781969,
+        "narHash": "sha256-Jjuz5CmSkur8KvLDoGa+vylEp+RkQtv4mt/qcMznpH0=",
+        "owner": "vic",
+        "repo": "import-tree",
+        "rev": "d321337efd0f23a9eb14a42adb7b2c29313ab274",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vic",
+        "repo": "import-tree",
+        "type": "github"
+      }
+    },
+    "import-tree_2": {
       "locked": {
         "lastModified": 1778781969,
         "narHash": "sha256-Jjuz5CmSkur8KvLDoGa+vylEp+RkQtv4mt/qcMznpH0=",
@@ -406,19 +498,18 @@
         "type": "github"
       }
     },
-    "nixpkgs-kernel-5_4": {
+    "nixpkgs-lib": {
       "locked": {
-        "lastModified": 1776329215,
-        "narHash": "sha256-a8BYi3mzoJ/AcJP8UldOx8emoPRLeWqALZWu4ZvjPXw=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "b86751bc4085f48661017fa226dee99fab6c651b",
+        "lastModified": 1777168982,
+        "narHash": "sha256-GOkGPcboWE9BmGCRMLX3worL4EMnsnG8MyKmXNeYuhQ=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "f5901329dade4a6ea039af1433fb087bd9c1fe14",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "b86751bc4085f48661017fa226dee99fab6c651b",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
         "type": "github"
       }
     },
@@ -466,6 +557,38 @@
       "original": {
         "type": "tarball",
         "url": "https://flakehub.com/f/NixOS/nixpkgs/0"
+      }
+    },
+    "nixpkgs-with-systemd-v257": {
+      "locked": {
+        "lastModified": 1760596604,
+        "narHash": "sha256-J/i5K6AAz/y5dBePHQOuzC7MbhyTOKsd/GLezSbEFiM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "3cbe716e2346710d6e1f7c559363d14e11c32a43",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "3cbe716e2346710d6e1f7c559363d14e11c32a4",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-with-systemd-v259": {
+      "locked": {
+        "lastModified": 1776329215,
+        "narHash": "sha256-a8BYi3mzoJ/AcJP8UldOx8emoPRLeWqALZWu4ZvjPXw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b86751bc4085f48661017fa226dee99fab6c651b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b86751bc4085f48661017fa226dee99fab6c651b",
+        "type": "github"
       }
     },
     "nixpkgs_2": {
@@ -546,16 +669,16 @@
         "den": "den",
         "determinate": "determinate",
         "dms": "dms",
-        "finix": "finix",
+        "droidspaces": "droidspaces",
+        "finix": "finix_2",
         "flake-aspects": "flake-aspects",
         "home-manager": "home-manager",
-        "import-tree": "import-tree",
+        "import-tree": "import-tree_2",
         "jail-nix": "jail-nix",
         "lazyvim": "lazyvim",
         "niri": "niri",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_3",
-        "nixpkgs-kernel-5_4": "nixpkgs-kernel-5_4",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "plasma-manager": "plasma-manager",
         "sops-nix": "sops-nix",
