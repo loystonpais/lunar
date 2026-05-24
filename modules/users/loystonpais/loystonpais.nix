@@ -340,6 +340,10 @@
           domainName = "diviner.loy.ftp.sh";
           cert = null;
         })
+        (lunar.acme._.freedns-afraid {
+          domainName = "loy.us.to";
+          cert = null;
+        })
 
         # TODO: Remove this later when the dep with lunar.dev is removed
         lunar.xonsh
