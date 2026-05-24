@@ -64,7 +64,7 @@
       services.matrix-conduit = {
         enable = true;
         settings.global = {
-          address = "localhost";
+          address = "127.0.0.1";
           port = 6167;
           server_name = "loy.us.to/matrix";
           allow_encryption = true;
