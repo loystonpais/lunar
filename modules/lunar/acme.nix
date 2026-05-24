@@ -50,6 +50,8 @@
           wantedBy = ["multi-user.target"];
         };
 
+        sops.secrets."freedns-afraid-domains/loy.us.to/update-url" = {};
+
         # Let's just disable this for VMs
         virtualisation.vmVariant.systemd.services."acme-dns-update-${domainName}".enable = lib.mkForce false;
         virtualisation.vmVariant.systemd.services."acme-${domainName}".enable = lib.mkForce false;
