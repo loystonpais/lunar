@@ -15,8 +15,8 @@
       domain,
       cert ? {listenHTTP = ":80";},
     }: let
+      accountName = lib.last (lib.splitString "." domain);
       domainName = "${domain}.dedyn.io";
-      accountName = lib.last (lib.splitString "." domainName);
     in {
       nixos = {
         pkgs,
@@ -37,7 +37,7 @@
           path = with pkgs; [curl];
           script = ''
             for i in $(seq 1 5); do
-              curl -fsS "https://update.dedyn.io/?hostname=${domainName}&password=$(cat ${passwordPath})" && exit 0
+              curl -fsS "https://update.dedyn.io/?username=${domainName}&password=$(cat ${passwordPath})" && exit 0
               sleep 3
             done
             exit 1
