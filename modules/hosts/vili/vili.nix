@@ -2,29 +2,22 @@
   den,
   lunar,
   lib,
+  inputs,
   ...
-}: let
-  nixpkgs-with-systemd-v259 =
-    import (fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/b86751bc4085f48661017fa226dee99fab6c651b.tar.gz";
-      sha256 = "sha256:0z1xwfdy3blm5n06lyabyjhadiy79rbm5z4kf309z85kg65mih3b";
-    }) {
-      system = "aarch64-linux";
-    };
-
-  systemd-v259 = nixpkgs-with-systemd-v259.pkgs.systemd;
-in {
+}: {
   den.aspects.vili = {
     includes = [
       den.aspects.loystonpais
 
-      # # Force systemd package to v259 since thats the last version to support 5.4 Kernel # Not working bruh
-      # {
-      #   nixos = {pkgs, ...}: {
-      #     systemd.package = lib.mkForce systemd-v259;
-      #     # boot.initrd.systemd.package = lib.mkForce systemd-v259; # May not be needed
-      #   };
-      # }
+      # import necessary modules
+      {
+        nixos = {
+          imports = [
+            inputs.droidspaces.nixosModules.working-droidspaces-rootfs-minimal
+            inputs.droidspaces.nixosModules.pin-systemd-v257
+          ];
+        };
+      }
 
       # Simplify setting wlan0
       {
@@ -232,34 +225,6 @@ in {
           users.users.loystonpais.extraGroups = ["video" "render"];
         }
       ];
-
-      # These services are broken in droidspaces container
-      systemd.services.nix-channel-init.enable = false;
-      systemd.services.firewall.enable = false;
-      systemd.services.wpa_supplicant.enable = false;
-
-      networking.firewall.enable = false;
-
-      # Properly fix udev stuff
-      systemd.services.systemd-udev-trigger.serviceConfig.ExecStart = lib.mkForce [
-        ""
-        "-udevadm trigger --subsystem-match=usb --subsystem-match=block --subsystem-match=input --subsystem-match=tty --subsystem-match=net"
-      ];
-      systemd.services."systemd-udevd".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
-      systemd.services."systemd-udev-trigger".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
-      systemd.services."systemd-udev-settle".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
-      systemd.sockets."systemd-udevd-kernel".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
-      systemd.sockets."systemd-udevd-control".unitConfig.ConditionPathIsReadWrite = lib.mkForce [];
-
-      services.logind.settings.Login = {
-        HandlePowerKey = "ignore";
-        HandleSuspendKey = "ignore";
-        HandleHibernateKey = "ignore";
-        HandlePowerKeyLongPress = "ignore";
-        HandlePowerKeyLongPressHibernate = "ignore";
-      };
-
-      systemd.services.NetworkManager.enable = lib.mkDefault false;
 
       system.stateVersion = "26.05";
     };
