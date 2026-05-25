@@ -67,9 +67,10 @@
         };
       };
 
-      # Matrix Conduit
-      services.matrix-conduit = {
+      # Matrix Continuwuity
+      services.matrix-continuwuity = {
         enable = true;
+        admin.enable = true;
         settings.global = {
           address = "127.0.0.1";
           port = 6167;
@@ -77,7 +78,6 @@
           allow_encryption = true;
           allow_federation = true;
           allow_registration = false;
-          database_backend = "rocksdb";
           trusted_servers = ["matrix.org"];
         };
       };
