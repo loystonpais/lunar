@@ -113,7 +113,7 @@
         # C/C++
         # llvm-vs-code-extensions.vscode-clangd # Conflicts with ms-vscode.cpptools
         ms-vscode.makefile-tools
-        ms-vscode.cpptools
+        #TODO: fix this not working on darwin. ms-vscode.cpptools
         ms-vscode.cmake-tools
         xaver.clang-format
 
@@ -149,11 +149,6 @@
   in {
     nixos = {pkgs, ...}: {
       environment.systemPackages = [pkgs.vscode];
-
-      # adds vscode extensions from marketplace
-      nixpkgs.overlays = [
-        inputs.nix-vscode-extensions.overlays.default
-      ];
     };
 
     homeManager = {
@@ -172,6 +167,11 @@
       };
     in {
       config = {
+        # adds vscode extensions from marketplace
+        nixpkgs.overlays = [
+          inputs.nix-vscode-extensions.overlays.default
+        ];
+
         programs.vscode = {
           enable = true;
           mutableExtensionsDir = true;
