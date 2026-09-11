@@ -180,6 +180,19 @@
         la = "lsd -la";
       };
 
+      programs.git = {
+        enable = true;
+        settings = {
+          user.name = "loystonpais";
+          user.email = "loyston500@gmail.com";
+          alias = {
+            pu = "push";
+            ch = "checkout";
+            cm = "commit";
+          };
+        };
+      };
+
       home.file.".jython-jar".source = pkgs-stable.jython;
       home.file.".jruby-jar".source = pkgs-stable.jruby;
 
