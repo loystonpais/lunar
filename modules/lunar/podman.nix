@@ -41,11 +41,13 @@
 
         {
           virtualisation.docker = {
-            enable = true;
-          };
+            enable = false;
 
-          # Optional: Add your user to the "docker" group to run docker without sudo
-          users.users.${user.userName}.extraGroups = ["docker"];
+            rootless = {
+              enable = true;
+              setSocketVariable = true;
+            };
+          };
         }
       ];
     };
