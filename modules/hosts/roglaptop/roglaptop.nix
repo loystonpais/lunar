@@ -51,6 +51,8 @@
             "net.ipv4.tcp_mtu_probing" = 1;
             "net.ipv4.tcp_congestion_control" = "bbr";
             "net.core.default_qdisc" = "cake";
+            "vm.swappiness" = 180;
+            "vm.page-cluster" = 0;
           };
 
           boot.kernelModules = ["tcp_bbr" "sch_cake"];
@@ -126,6 +128,26 @@
 
       security.rtkit.enable = true;
       programs.nix-ld.enable = true;
+
+      zramSwap = {
+        enable = true;
+        algorithm = "zstd";
+        memoryPercent = 100;
+        priority = 999;
+      };
+
+      services.earlyoom = {
+        enable = true;
+        freeMemThreshold = 5;
+        freeSwapThreshold = 10;
+        enableNotifications = true;
+        extraArgs = [
+          "--prefer"
+          "^(cc1plus|clang|rustc|cargo|nix-daemon)$"
+          "--avoid"
+          "^(plasmashell|kwin_wayland|Xwayland|pipewire|wireplumber|systemd)$"
+        ];
+      };
     };
   };
 
