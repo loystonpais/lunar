@@ -44,6 +44,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    dank-greeter = {
+      url = "github:AvengeMedia/dank-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-security-box = {
       url = "github:fabaff/nix-security-box";
       flake = false;
@@ -101,7 +106,7 @@
     };
 
     nixcraft = {
-      url = "github:loystonpais/nixcraft";
+      url = "github:loystonpais/nixcraft/dev";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
