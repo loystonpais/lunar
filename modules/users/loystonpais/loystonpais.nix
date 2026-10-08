@@ -258,6 +258,45 @@
       ];
     };
 
+    provides.armor = {
+      includes = [
+        lunar.determinate
+        lunar.tailscale
+        lunar.ssh
+        lunar.git
+        lunar.dev
+
+        lunar.sops
+        (lunar.rclone {
+          remotes = [
+            "dropbox500"
+            "mega800"
+            "mega500"
+            "mega200"
+          ];
+
+          unions = [
+            "mega"
+          ];
+        })
+
+        lunar.agents
+        lunar.agents._.playwright
+        den.aspects.loystonpais.provides.jailed-agents
+
+        (lunar.acme._.dedyn-io {
+          domain = "randommc.loy";
+          cert = null;
+        })
+
+        lunar.server
+        lunar.server._.storage-management
+
+        # TODO: Remove this later when the dep with lunar.dev is removed
+        lunar.xonsh
+      ];
+    };
+
     provides.vili = {
       includes = [
         lunar.determinate
