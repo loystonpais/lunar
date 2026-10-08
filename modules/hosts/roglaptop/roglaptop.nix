@@ -34,9 +34,26 @@
 
         # Cachyos kernel
         {
-          nixpkgs.overlays = [inputs.nix-cachyos-kernel.overlays.pinned];
-          boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
-          system.nixos.tags = ["cachyos"];
+          # nixpkgs.overlays = [inputs.nix-cachyos-kernel.overlays.pinned];
+          # boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+          # system.nixos.tags = ["cachyos"];
+          # boot.kernelParams = ["preempt=full"];
+        }
+
+        {
+          hardware.nvidia.package = lib.mkForce config.boot.kernelPackages.nvidiaPackages.latest;
+        }
+
+        {
+          networking.networkmanager.wifi.powersave = false;
+
+          boot.kernel.sysctl = {
+            "net.ipv4.tcp_mtu_probing" = 1;
+            "net.ipv4.tcp_congestion_control" = "bbr";
+            "net.core.default_qdisc" = "cake";
+          };
+
+          boot.kernelModules = ["tcp_bbr" "sch_cake"];
         }
       ];
 
@@ -64,7 +81,6 @@
         "interface-name:microbr"
         "interface-name:microvm*"
       ];
-
       networking.firewall.enable = lib.mkForce false;
 
       hardware.nvidia.prime = {
@@ -75,8 +91,23 @@
       # TODO: See if enabling these causes random crashes
       # UPDATE: Haven't seen any crashes since enabling finegrained
       hardware.nvidia = {
-        powerManagement.enable = lib.mkForce false;
-        powerManagement.finegrained = lib.mkForce false;
+        powerManagement.enable = lib.mkForce true;
+        powerManagement.finegrained = lib.mkForce true;
+        open = lib.mkForce true;
+      };
+
+      # REMINDER: Temporary workaround to delay supergfxd via timer to isolate early boot / greeter crashes. Remove later.
+      systemd.services.supergfxd = {
+        before = lib.mkForce [];
+        wantedBy = lib.mkForce [];
+      };
+
+      systemd.timers.supergfxd = {
+        wantedBy = ["timers.target"];
+        timerConfig = {
+          OnBootSec = "30s";
+          Unit = "supergfxd.service";
+        };
       };
 
       boot.loader.grub = {
