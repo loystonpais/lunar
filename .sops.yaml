@@ -3,11 +3,13 @@ keys:
   - &roglaptop age105vhyxu8gh00fq2ex5ktkhchzwtcu9fkv7zvradajmcf57tkhcusrxvwa4
   - &nixacle age1jt647zpx27d9r9cqyrcq5xp0qgdmrc09n4aa9c2tkkmv8k0pj4sqmkrmdh
   - &diviner age14l30nu5r2mkvkce9sk6m0ldchryeqfaeu7jsj0msg2chvnnzuceqvte68n
+  - &armor age1ayfxgfd26ra36v548z7x9cc6zz3kch3yx2ly4e9wjuuyctpj69nsa3t0yy
 creation_rules:
   - path_regex: secrets/.*
     key_groups:
       - age:
-        - *primary
-        - *roglaptop
-        - *nixacle
-        - *diviner
+          - *primary
+          - *roglaptop
+          - *nixacle
+          - *diviner
+          - *armor

@@ -71,6 +71,12 @@
         "freedns-afraid-domains/loy.ftp.sh/update-url".owner = user.userName;
         "freedns-afraid-domains/diviner.loy.ftp.sh/update-url".owner = user.userName;
         "freedns-afraid-domains/loy.us.to/update-url".owner = user.userName;
+
+        "dwar/admin-password".owner = user.userName;
+        "dwar/shield-password".owner = user.userName;
+        "dwar/sh-password".owner = user.userName;
+        "dwar/ssh-fingerprint".owner = user.userName;
+        "dwar/usb-password".owner = user.userName;
       };
     };
 
