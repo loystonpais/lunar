@@ -253,8 +253,6 @@
           projectId = infisical.projectId;
           syncSec = "10h";
         })
-
-        lunar.espanso
       ];
     };
 
