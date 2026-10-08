@@ -85,25 +85,26 @@
             enable = true;
 
             client = {
+              # Online account uuid. this will be set to NIXCRAFT_CLIENT_AUTH_UUID env var
+              # auth.uuid = "bda81d24e88249ee86585800903d8c35";
+
               # Config to share with all instances
               shared = {
                 # Symlink screenshots dir from all instances
                 files."screenshots".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Pictures";
 
-                # Common account
+                # Enable online account
                 account = {
-                  username = "loystonlive";
-                  uuid = "2909ee95-d459-40c4-bcbb-65a0cc413110";
-                  offline = true;
+                  offline = false;
+                  # If uuid is not provided here, the auth script will pick it up
+                  # from NIXCRAFT_CLIENT_AUTH_UUID env var
+                  # If the env var is not set then script will always prompt for login
+                  uuid = "bda81d24e88249ee86585800903d8c35";
                 };
 
-                # Use PrismLauncher assets to avoid downloading thousands of Nix derivations
-                _classSettings = {
-                  # assetsDir = lib.mkForce "${config.home.homeDirectory}/.local/share/PrismLauncher/assets";
-                };
-
-                # enableFastAssetDownload = true;
-
+                # enable external assets to download assets at runtime
+                # instead of via nix
+                # this has the added benefit of caching assets from PrismLauncher if present. Also no asset hash required.
                 enableExternalAssets = true;
 
                 # Game is passed to the gpu (set if you have nvidia gpu)
@@ -131,7 +132,7 @@
               instances = {
                 # Example client customized for minecraft speedrunning
                 fsg = {
-                  enable = true;
+                  # enable = true;
 
                   preLaunchShellScript = lib.mkBefore ''
                     mkdir -p ${lib.escapeShellArg config.nixcraft.client.instances.fsg.absoluteDir}
@@ -189,6 +190,8 @@
                   # waywall can be enabled
                   waywall.enable = true;
 
+                  lwjgl.version = "3.3.3";
+
                   # Add executable to path
                   binEntry = {
                     enable = true;
@@ -207,33 +210,64 @@
                   assetHash = "sha256-VK8fwyG8j2FpKPXIZLVYofq5Kdl83hiW47S+xCE3qjQ=";
                 };
 
-                oneseven = {
-                  enable = true;
+                test-client = {};
 
-                  version = "1.17";
+                ranked = {
+                  # enable = true;
 
-                  assetHash = "sha256-1ZibFNIDxPPsDv4BihihmvPI5Dw18w7bH+6c88ejhaU=";
+                  # mrpack = {
+                  #   enable = true;
+                  #   file = pkgs.fetchurl {
+                  #     url = "https://cdn.modrinth.com/data/I9W1u5Ac/versions/wvlNsT7L/mcsrranked-5.8.18.jar";
+                  #     hash = "sha256-/O0XBhceTz/qsRgmJFiriDjVnCKY0+Fi8lVPU+3jsS0=";
+                  #   };
+                  # };
 
-                  files."options.txt" = {
-                    type = "options-txt";
-                    value = {
-                      fov = "0.0";
-                      gamma = "0.0";
+                  files = {
+                    "config/mcsr/standardsettings.json".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/modules/lunar/minecraft/standardsettings.json";
+                    "options.txt" = {
+                      source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/modules/lunar/minecraft/options.txt";
+                    };
+                  };
+
+                  java = {
+                    extraArguments = [
+                      "-XX:+UseZGC"
+                      "-XX:-ZUncommit"
+                      "-XX:+AlwaysPreTouch"
+                      "-Dgraal.TuneInlinerExploration=1"
+                      "-XX:NmethodSweepActivity=1"
+                    ];
+                    # override java package. This mrpack needs java 17
+                    package = pkgs.graalvmPackages.graalvm-oracle_17;
+                    # set memory in MBs
+                    maxMemory = 3500;
+                    minMemory = 3500;
+                  };
+
+                  envVars.LD_PRELOAD = lib.mkBefore ["${pkgs.jemalloc}/lib/libjemalloc.so"];
+
+                  # waywall can be enabled
+                  waywall.enable = true;
+
+                  # Add executable to path
+                  binEntry = {
+                    enable = true;
+                    # Set executable name
+                    name = "ranked";
+                  };
+
+                  desktopEntry = {
+                    enable = true;
+                    name = "Nixcraft Ranked";
+                    extraConfig = {
+                      terminal = true;
                     };
                   };
                 };
 
-                onetwo = {
-                  enable = true;
-
-                  version = "1.18";
-
-                  enableExternalAssets = lib.mkForce true;
-                  #enableFastAssetDownload = lib.mkForce true;
-                };
-
                 rsg = {
-                  enable = true;
+                  # enable = true;
 
                   _classSettings = {
                     fullscreen = true;
