@@ -151,7 +151,11 @@
       ...
     }: {
       nixos = {config, ...}: {
-        services.displayManager.dms-greeter = {
+        imports = [
+          inputs.dank-greeter.nixosModules.default
+        ];
+
+        programs.dms-greeter = {
           enable = true;
           configHome = config.home-manager.users.${user.userName}.home.homeDirectory;
           compositor.name = lib.mkIf (compositor != null) compositor;
