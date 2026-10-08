@@ -29,9 +29,9 @@
       programs.ssh = {
         enableDefaultConfig = false;
         enable = true;
-        matchBlocks = {
+        settings = {
           "*" = {
-            setEnv = {
+            SetEnv = {
               # https://ghostty.org/docs/help/terminfo#configure-ssh-to-fall-back-to-a-known-terminfo-entry
               TERM = "xterm-256color";
             };

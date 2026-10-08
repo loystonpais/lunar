@@ -82,6 +82,7 @@
 
       programs.zsh = {
         enable = true;
+        dotDir = config.home.homeDirectory;
         enableCompletion = true;
         enableVteIntegration = true;
         autocd = true;

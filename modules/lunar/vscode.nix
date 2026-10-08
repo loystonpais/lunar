@@ -172,14 +172,8 @@
       };
     in {
       config = {
-        # adds vscode extensions from marketplace
-        nixpkgs.overlays = [
-          inputs.nix-vscode-extensions.overlays.default
-        ];
-
         programs.vscode = {
           enable = true;
-          mutableExtensionsDir = true;
 
           profiles = {
             # 1. Default Profile: Core configuration + Essential Nix
