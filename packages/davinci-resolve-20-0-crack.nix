@@ -10,9 +10,23 @@
   addDriverRunpath,
   dbus,
   libGLU,
-  xorg,
+  libxinerama,
+  libxt,
+  libxtst,
+  libxcb,
+  libxxf86vm,
+  libice,
+  libsm,
+  libx11,
+  libxcomposite,
+  libxcursor,
+  libxdamage,
+  libxext,
+  libxfixes,
+  libxi,
+  libxrandr,
+  libxrender,
   buildFHSEnv,
-  buildFHSEnvChroot,
   bash,
   writeText,
   ocl-icd,
@@ -43,7 +57,7 @@
       version = "20.0";
 
       nativeBuildInputs = [
-        (appimage-run.override {buildFHSEnv = buildFHSEnvChroot;})
+        (appimage-run.override {inherit buildFHSEnv;})
         addDriverRunpath
         copyDesktopItems
         unzip
@@ -52,7 +66,7 @@
       # Pretty sure, there are missing dependencies ...
       buildInputs = [
         libGLU
-        xorg.libXxf86vm
+        libxxf86vm
       ];
 
       src =
@@ -223,28 +237,28 @@ in
           python3.pkgs.numpy
           udev
           xdg-utils # xdg-open needed to open URLs
-          xorg.libICE
-          xorg.libSM
-          xorg.libX11
-          xorg.libXcomposite
-          xorg.libXcursor
-          xorg.libXdamage
-          xorg.libXext
-          xorg.libXfixes
-          xorg.libXi
-          xorg.libXinerama
-          xorg.libXrandr
-          xorg.libXrender
-          xorg.libXt
-          xorg.libXtst
-          xorg.libXxf86vm
-          xorg.libxcb
-          xorg.xcbutil
-          xorg.xcbutilimage
-          xorg.xcbutilkeysyms
-          xorg.xcbutilrenderutil
-          xorg.xcbutilwm
-          xorg.xkeyboardconfig
+          libice
+          libsm
+          libx11
+          libxcomposite
+          libxcursor
+          libxdamage
+          libxext
+          libxfixes
+          libxi
+          libxinerama
+          libxrandr
+          libxrender
+          libxt
+          libxtst
+          libxxf86vm
+          libxcb
+          pkgs."libxcb-util"
+          pkgs."libxcb-image"
+          pkgs."libxcb-keysyms"
+          pkgs."libxcb-render-util"
+          pkgs."libxcb-wm"
+          xkeyboard_config
           zlib
         ]
         ++

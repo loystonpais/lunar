@@ -24,7 +24,6 @@ rustPlatform.buildRustPackage rec {
 
   configUrl = "https://raw.githubusercontent.com/${src.owner}/${src.repo}/main/config.toml";
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-oGpe+kBf6kBboyx/YfbQBt1vvjtXd1n2pOH6FNcbF8M=";
 
   doCheck = false;

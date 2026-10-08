@@ -6,7 +6,14 @@
   cmake,
   gcc,
   libxkbcommon,
-  xorg,
+  libxinerama,
+  libxt,
+  libxtst,
+  libxcb,
+  libx11,
+  libxrandr,
+  libxxf86vm,
+  libxcursor,
   glew,
   glfw3,
   libGLU,
@@ -36,14 +43,14 @@ stdenv.mkDerivation {
     glfw3
     glew
     libxkbcommon
-    xorg.libX11
-    xorg.libXt
-    xorg.libXtst
-    xorg.libXinerama
-    xorg.libxcb
-    xorg.libXrandr
-    xorg.libXxf86vm
-    xorg.libXcursor
+    libxinerama
+    libxt
+    libxtst
+    libxcb
+    libx11
+    libxrandr
+    libxxf86vm
+    libxcursor
   ];
 
   configurePhase = ''

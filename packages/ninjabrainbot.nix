@@ -7,6 +7,10 @@
   jre,
   libxkbcommon,
   libx11,
+  libxinerama,
+  libxt,
+  libxtst,
+  libxcb,
   xorg,
   javaOptions ? [
     "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel"
@@ -41,10 +45,10 @@ stdenv.mkDerivation rec {
       lib.makeLibraryPath [
         libxkbcommon
         libx11
-        xorg.libXt
-        xorg.libXtst
-        xorg.libXinerama
-        xorg.libxcb
+        libxt
+        libxtst
+        libxinerama
+        libxcb
       ]
     }
 

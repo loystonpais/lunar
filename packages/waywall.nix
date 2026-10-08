@@ -12,7 +12,7 @@
   wayland,
   wayland-protocols,
   wayland-scanner,
-  xorg,
+  libxcb,
   xwayland,
   gitSrcOverride ? {},
 }: let
@@ -45,7 +45,7 @@ in
       luajit
       wayland
       wayland-protocols
-      xorg.libxcb
+      libxcb
       xwayland
     ];
 
