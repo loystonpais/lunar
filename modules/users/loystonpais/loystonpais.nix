@@ -160,17 +160,8 @@
       includes = [
         lunar.agents
         (lunar.agents._.jailed (pkgs: {
-            gemini = {
-              pkg = pkgs.gemini-cli;
-              perms = c:
-                with c; [
-                  (set-argv [
-                    "--yolo"
-                    (noescape "\"$@\"")
-                  ])
-
-                  (set-env "GEMINI_TELEMETRY_ENABLED" "0")
-                ];
+            pi = {
+              pkg = pkgs.pi-coding-agent;
             };
 
             claude = {
@@ -203,7 +194,7 @@
               name = scope;
               value.perms = c:
                 with c; [];
-            }) ["800" "200" "500" "1000"])
+            }) ["800" "200" "500" "1000" "weda"])
           ) {})
       ];
     };
