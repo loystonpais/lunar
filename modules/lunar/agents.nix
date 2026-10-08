@@ -126,6 +126,7 @@
             (bind-agent-home-to-home ".gemini")
             (bind-agent-home-to-home ".claude")
             (bind-agent-home-to-home ".codex")
+            (bind-agent-home-to-home ".pi")
             (bind-agent-home-to-home ".antigravitycli")
 
             (bind-agent-home-to-home ".config/opencode")
@@ -211,7 +212,7 @@ in {
             scopes = mkScopes;
 
             defaultAgentsPerms = {
-              gemini = c: [];
+              pi = c: [];
               opencode = c: [];
               claude = c: [];
             };
