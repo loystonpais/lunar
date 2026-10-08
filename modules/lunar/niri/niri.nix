@@ -36,7 +36,7 @@
         alacritty
       ];
 
-      services.displayManager.dms-greeter.compositor.name = lib.mkDefault "niri";
+      programs.dms-greeter.compositor.name = lib.mkDefault "niri";
 
       xdg.portal = {
         enable = true;
