@@ -149,6 +149,11 @@
   in {
     nixos = {pkgs, ...}: {
       environment.systemPackages = [pkgs.vscode];
+
+      # adds vscode extensions from marketplace
+      nixpkgs.overlays = [
+        inputs.nix-vscode-extensions.overlays.default
+      ];
     };
 
     homeManager = {
