@@ -10,8 +10,43 @@
     agentDirPath,
     homesPath ? "${agentDirPath}/home",
     globalSkillsPath ? "${agentDirPath}/skills",
+    rootOverlayPath ? "${agentDirPath}/root-overlay",
     ...
-  }: {
+  }: let
+    # Build a standard FHS rootfs containing essential runtimes & libraries for MCP servers
+    agentFhs = pkgs.buildFHSEnv {
+      name = "agent-mcp-fhs";
+      targetPkgs = pkgs:
+        with pkgs; [
+          # Core binaries & shell
+          glibc
+          gcc.cc.lib
+          bashInteractive
+          coreutils
+          findutils
+          gnugrep
+          gnused
+          gawk
+
+          # Common MCP / script runtimes
+          nodejs_22
+          python3
+          uv
+          bun
+
+          # CLI utilities
+          git
+          curl
+          jq
+
+          # Common native libraries for unpatched / node-gyp / wheel binaries
+          zlib
+          openssl
+          icu
+        ];
+    };
+    fhsRoot = agentFhs.fhsenv;
+  in {
     # jailed :: String -> AttrSet -> Derivation
     # scope   -
     # extraPerms - additional combinators beyond the agent base
@@ -61,19 +96,44 @@
                 (readwrite globalSkillsPath)
                 (unsafe-add-raw-args "--bind ${escape globalSkillsPath} ~/${escape path}")
               ];
+
+            bind-agent-home-file-to-home-file = file:
+              compose [
+                (add-runtime ''
+                  mkdir -p "$(dirname ~/${escape file})"
+                  mkdir -p "$(dirname ${agentHome}/${escape file})"
+                  [ ! -f ~/${escape file} ] && touch ~/${escape file}
+                  [ ! -f ${agentHome}/${escape file} ] && touch ${agentHome}/${escape file}
+                '')
+                (unsafe-add-raw-args "--bind ${agentHome}/${escape file} ~/${escape file}")
+              ];
           };
 
         basePermissions = c:
           with c; [
-            (unsafe-add-raw-args "--ro-bind / /")
-            (unsafe-add-raw-args "--bind /proc /proc")
-            (unsafe-add-raw-args "--dev /dev") # a new /dev removes access to drives
-            (unsafe-add-raw-args "--bind /tmp /tmp") # /tmp needn't be tmpfs always
-            (unsafe-add-raw-args "--bind /run /run")
-            (unsafe-add-raw-args "--ro-bind /nix /nix") # important
-            (unsafe-add-raw-args "--bind /nix/var/nix/daemon-socket /nix/var/nix/daemon-socket") # nix will connect to the daemon
+            (add-runtime ''
+              mkdir -p "${rootOverlayPath}/upper"
+              mkdir -p "${rootOverlayPath}/work"
+            '')
 
-            (unsafe-add-raw-args "--ro-bind ~ ~") # Make home ro
+            (unsafe-add-raw-args "--overlay-src ${fhsRoot}")
+            (unsafe-add-raw-args "--overlay ${rootOverlayPath}/upper ${rootOverlayPath}/work /")
+
+            (unsafe-add-raw-args "--ro-bind /nix /nix")
+            (unsafe-add-raw-args "--bind /nix/var/nix/daemon-socket /nix/var/nix/daemon-socket")
+            (unsafe-add-raw-args "--ro-bind /etc /etc")
+            (unsafe-add-raw-args "--bind /proc /proc")
+            (unsafe-add-raw-args "--dev /dev")
+            (unsafe-add-raw-args "--bind /tmp /tmp")
+            (unsafe-add-raw-args "--bind /run /run")
+
+            (unsafe-add-raw-args "--ro-bind-try /boot /boot")
+            (unsafe-add-raw-args "--ro-bind-try /var /var")
+            (unsafe-add-raw-args "--ro-bind-try /mnt /mnt")
+
+            (readwrite rootOverlayPath)
+
+            (unsafe-add-raw-args "--ro-bind ~ ~")
 
             (unsafe-add-raw-args "--share-net")
             (add-runtime ''
@@ -96,7 +156,6 @@
             # mount some paths in home as rw like cache, .cargo etc..
             (try-readwrite (noescape "~/.cargo"))
 
-            (try-readwrite (noescape "~/.local/state/nix"))
             (try-readwrite (noescape "~/.local/share/nix"))
             (try-readwrite (noescape "~/.config/nix"))
 
@@ -115,35 +174,42 @@
             (try-readwrite (noescape "~/.pyenv"))
             (try-readwrite (noescape "~/.poetry"))
             (try-readwrite (noescape "~/.config/pypoetry"))
-            (try-readwrite (noescape "~/.local/state/blesh"))
 
             (try-readwrite (noescape "~/.local/share/rtk"))
 
             (try-readwrite (noescape "~/.local/share/zoxide"))
             # TODO: add more rw paths
 
-            # Bind some paths from agent home to real home like .gemini
-            (bind-agent-home-to-home ".gemini")
+            # For antigravity-cli
+            (try-readwrite (noescape "~/.gemini"))
+            (bind-agent-home-file-to-home-file ".gemini/oauth_creds.json")
+            (bind-agent-home-file-to-home-file ".gemini/google_accounts.json")
+            (bind-agent-home-file-to-home-file ".gemini/antigravity-cli/antigravity-oauth-token")
+
+            # Bind some paths from agent home to real home
             (bind-agent-home-to-home ".claude")
             (bind-agent-home-to-home ".codex")
             (bind-agent-home-to-home ".pi")
-            (bind-agent-home-to-home ".antigravitycli")
 
             (bind-agent-home-to-home ".config/opencode")
             (bind-agent-home-to-home ".local/share/opencode")
-            (bind-agent-home-to-home ".local/state/opencode")
-            #
 
-            # Keep these global, like mcp configs etc..
-            (bind-home ".gemini/config")
+            # TODO: Look into this. Do we want scoped entire state dir?
+            (bind-agent-home-to-home ".local/state")
+            (try-readwrite (noescape "~/.local/state/nix"))
 
             (bind-skills-to-global-skills ".gemini/skills")
 
-            (fwd-env "PATH") # forward paths from outside
+            # Prepend FHS binary paths to PATH at runtime, then forward PATH to container
+            (add-runtime ''
+              PATH="/usr/bin:/usr/sbin:$PATH"
+            '')
+            (fwd-env "PATH")
 
             (set-env "AGENT_SCOPE" scope)
 
             mount-cwd
+            no-new-session
           ];
       };
     in
